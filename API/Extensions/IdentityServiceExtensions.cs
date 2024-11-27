@@ -3,6 +3,8 @@ using Application.Services.UserService;
 using Core.Domain.IdentityEntities;
 using Infrastructure.DbContext;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
 namespace API.Extensions
@@ -17,9 +19,11 @@ namespace API.Extensions
                     opt.Password.RequireNonAlphanumeric = false;
                     opt.User.RequireUniqueEmail = true;
                 })
+                .AddRoles<IdentityRole<Guid>>()
                 .AddEntityFrameworkStores<DataContext>();
                 
-                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
             {
                 opt.TokenValidationParameters = new TokenValidationParameters
@@ -31,6 +35,7 @@ namespace API.Extensions
                 };
             });
             services.AddScoped<TokenService>();
+            services.AddScoped<AppendUserToRole>();
 
             return services;
 

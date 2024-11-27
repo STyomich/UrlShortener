@@ -17,6 +17,10 @@ namespace Infrastructure.DbContext
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<ShortUrl>()
+                .HasOne(su => su.User)
+                .WithMany(u => u.ShortUrls)
+                .HasForeignKey(su => su.UserId);
         }
     }
 }

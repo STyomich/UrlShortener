@@ -1,5 +1,6 @@
 using Application.Services.ShortUrlService;
 using Core.Domain.Entities;
+using Core.DTOs.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,12 +14,12 @@ namespace API.Controllers
             _mediator = mediator;
         }
         [HttpGet] //api/shorturl
-        public async Task<ActionResult<List<ShortUrl>>> GetAllShortUrls()
+        public async Task<ActionResult<List<ShortUrlDto>>> GetAllShortUrls()
         {
             return await _mediator.Send(new List.Query());
         }
         [HttpPost]
-        public async Task<IActionResult> CreateShortUrl(string originalUrl)
+        public async Task<IActionResult> CreateShortUrl(OriginalUrlDto originalUrl)
         {
             return Ok(await Mediator.Send(new Create.Command { OriginalUrl = originalUrl }));
         }

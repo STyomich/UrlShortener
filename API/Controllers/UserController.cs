@@ -14,13 +14,13 @@ namespace API.Controllers
     public class UserController : BaseApiController
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly TokenService _tokenService;
-        public UserController(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, TokenService tokenService)
+        private readonly IMediator _mediator;
+        public UserController(UserManager<ApplicationUser> userManager, TokenService tokenService, IMediator mediator)
         {
             _userManager = userManager;
-            _roleManager = roleManager;
             _tokenService = tokenService;
+            _mediator = mediator;
         }
         [AllowAnonymous]
         [HttpPost("login")]
@@ -66,28 +66,7 @@ namespace API.Controllers
 
             if (result.Succeeded)
             {
-                if (registerDto.UserGroup == UserGroupsEnum.Admin.ToString())
-                {
-                    if (await _roleManager.FindByNameAsync(UserGroupsEnum.Admin.ToString()) is null)
-                    {
-                        ApplicationRole applicationRole = new ApplicationRole() { Name = UserGroupsEnum.Admin.ToString() };
-                        await _roleManager.CreateAsync(applicationRole);
-                    }
-
-                    await _userManager.AddToRoleAsync(user, UserGroupsEnum.Admin.ToString());
-
-                }
-                if (registerDto.UserGroup == UserGroupsEnum.User.ToString())
-                {
-                    if (await _roleManager.FindByNameAsync(UserGroupsEnum.User.ToString()) is null)
-                    {
-                        ApplicationRole applicationRole = new ApplicationRole() { Name = UserGroupsEnum.Admin.ToString() };
-                        await _roleManager.CreateAsync(applicationRole);
-                    }
-
-                    await _userManager.AddToRoleAsync(user, UserGroupsEnum.User.ToString());
-
-                }
+                await _mediator.Send(new AppendUserToRole.Command { UserGroup = registerDto.UserGroup, User = user });
                 return new UserDto
                 {
                     Username = user.UserName,
