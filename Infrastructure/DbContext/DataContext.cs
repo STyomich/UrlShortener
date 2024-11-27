@@ -1,3 +1,4 @@
+using Core.Domain.Entities;
 using Core.Domain.IdentityEntities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -11,6 +12,7 @@ namespace Infrastructure.DbContext
         {
 
         }
+        public DbSet<ShortUrl> ShortUrls { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
