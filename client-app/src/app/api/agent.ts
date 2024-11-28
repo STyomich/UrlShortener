@@ -1,11 +1,12 @@
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import {
   User,
   UserLoginValues,
   UserRegisterValues,
 } from "../models/identity/user";
-import { ShortUrl } from "../models/entities/shortUrl";
+import { ShortUrl, ShortUrlDto } from "../models/entities/shortUrl";
 import store from "../redux/stores";
+import { toast } from "react-toastify";
 
 axios.defaults.baseURL = "http://localhost:5000/api";
 
@@ -13,8 +14,8 @@ const responseBody = <T>(response: AxiosResponse<T>) => response.data;
 
 axios.interceptors.request.use(
   (config) => {
-    const state = store.getState(); // Access the Redux state
-    const token = state.common.token; // Get the token from the common slice
+    const state = store.getState();
+    const token = state.common.token;
 
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -38,7 +39,7 @@ const requests = {
 
 const ShortUrls = {
   list: () => requests.get<ShortUrl[]>("/shorturl"),
-  create: (anime: ShortUrl) => requests.post<void>("/shorturl", anime),
+  create: (anime: ShortUrlDto) => requests.post<void>("/shorturl", anime),
   details: (id: string) => requests.get<ShortUrl>(`/shorturl/${id}`),
   delete: (id: string) => requests.del<void>(`/shorturl/${id}`),
 };

@@ -10,6 +10,7 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
+import { NavLink } from "react-router-dom";
 
 const ShortUrlsList = () => {
   const dispatch = useDispatch();
@@ -22,6 +23,11 @@ const ShortUrlsList = () => {
     dispatch(fetchShortUrls());
   }, [dispatch]);
 
+  const handleDeleteClick = (id: string) => {
+    console.log("Details for:", id);
+    // Logic to Delete
+  };
+
   if (status === "loading") {
     return <p>Loading short URLs...</p>;
   }
@@ -29,10 +35,6 @@ const ShortUrlsList = () => {
   if (status === "failed") {
     return <p>Error: {error}</p>;
   }
-  const handleDetailsClick = (url: UrlData) => {
-    console.log("Details for:", url);
-    // You can implement your logic to show details here
-  };
 
   return (
     <Table>
@@ -47,22 +49,52 @@ const ShortUrlsList = () => {
         {list.map((url: ShortUrl) => (
           <TableRow key={url.id}>
             <TableCell>{url.originalUrl}</TableCell>
-            <TableCell>{url.urlKey}</TableCell>
             <TableCell>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => handleDetailsClick(url)}
+              <a
+                href={`http://localhost:5000/${url.urlKey}`}
               >
-                Details
-              </Button>
-              {url.userId === user.id && (
+                {`http://localhost:5000/${url.urlKey}`}
+              </a>
+            </TableCell>
+            <TableCell>
+              {user != null ? (
                 <Button
                   variant="contained"
-                  color="secondary"
-                  onClick={() => handleEditClick(url)}
+                  component={NavLink}
+                  sx={{ marginRight: "5px" }}
+                  to={`/details/${url.id}`}
                 >
-                  Edit
+                  Details
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  disabled
+                  component={NavLink}
+                  sx={{ marginRight: "5px" }}
+                  to={`/details/${url.id}`}
+                >
+                  Details
+                </Button>
+              )}
+
+              {user != null &&
+              (url.userId === user.id || user.userGroup === "Admin") ? (
+                <Button
+                  variant="contained"
+                  sx={{ backgroundColor: "red" }}
+                  onClick={() => handleDeleteClick(url)}
+                >
+                  Delete
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  disabled
+                  sx={{ backgroundColor: "red" }}
+                  onClick={() => handleDeleteClick(url.id)}
+                >
+                  Delete
                 </Button>
               )}
             </TableCell>

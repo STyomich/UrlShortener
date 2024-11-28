@@ -6,12 +6,23 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import ProfileButtonGroup from "./ProfileButtonGroup";
+import { useSelector } from "react-redux";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function NavBar() {
+  const { user } = useSelector((state: unknown) => state.user);
+  const navigate = useNavigate();
+
+  const handleCreateClick = () => {
+    if (user) navigate("/create-short-url");
+    else toast.error("Not authorized");
+  };
   return (
     <Box sx={{ marginBottom: "70px" }}>
+      <ToastContainer />
       <AppBar position="absolute" style={{ backgroundColor: "#0e1420" }}>
         <Toolbar>
           <Box sx={{ display: "flex", alignItems: "center", flexGrow: 1 }}>
@@ -36,6 +47,13 @@ export default function NavBar() {
               style={{ color: "white", fontWeight: "bold", marginLeft: "20px" }}
             >
               List
+            </Button>
+            <Button
+              onClick={() => handleCreateClick()}
+              variant="text"
+              style={{ color: "white", fontWeight: "bold", marginLeft: "20px" }}
+            >
+              Create
             </Button>
             <Button
               component={NavLink}

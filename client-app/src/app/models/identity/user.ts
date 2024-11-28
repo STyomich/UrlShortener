@@ -3,6 +3,7 @@ export interface User {
   userName: string;
   email: string;
   token: string;
+  userGroup: string;
 }
 
 export interface UserLoginValues {
@@ -13,4 +14,5 @@ export interface UserRegisterValues {
   userName: string;
   email: string;
   password: string;
+  isAdmin: boolean;
 }

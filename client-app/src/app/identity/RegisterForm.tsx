@@ -2,10 +2,10 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography } from "@mui/material";
-import { useDispatch } from "react-redux"; 
-import { login } from "../redux/slices/userSlice";
+import { useDispatch } from "react-redux";
+import { register } from "../redux/slices/userSlice";
 
-export default function LoginForm() {
+export default function RegisterForm() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -14,26 +14,32 @@ export default function LoginForm() {
       .email("Invalid email address")
       .required("Email is required"),
     password: Yup.string().required("Password is required"),
+    userName: Yup.string().required("Username is required"),
   });
 
   return (
     <Box
       sx={{
         display: "flex",
-        flexDirection: "column", 
-        justifyContent: "top", 
-        alignItems: "center", 
-        minHeight: "100vh", 
-        marginTop: "100px", 
-        gap: "20px", 
+        flexDirection: "column",
+        justifyContent: "top",
+        alignItems: "center",
+        minHeight: "100vh",
+        marginTop: "100px",
+        gap: "20px",
       }}
     >
-      <Typography>Login</Typography>
+      <Typography>Register</Typography>
       <Formik
-        initialValues={{ email: "", password: "" }}
+        initialValues={{
+          userName: "",
+          email: "",
+          password: "",
+          isAdmin: false,
+        }}
         validationSchema={validationSchema}
         onSubmit={(values, { setSubmitting }) => {
-          dispatch(login(values))
+          dispatch(register(values))
             .then(() => {
               navigate("/");
             })
@@ -45,6 +51,11 @@ export default function LoginForm() {
         {({ isSubmitting }) => (
           <Form>
             <div>
+              <label htmlFor="userName">Username</label>
+              <Field name="userName" type="userName" />
+              <ErrorMessage name="userName" component="div" />
+            </div>
+            <div>
               <label htmlFor="email">Email</label>
               <Field name="email" type="email" />
               <ErrorMessage name="email" component="div" />
@@ -55,9 +66,14 @@ export default function LoginForm() {
               <Field name="password" type="password" />
               <ErrorMessage name="password" component="div" />
             </div>
-
+            <div>
+              <label htmlFor="isAdmin">
+                <Field name="isAdmin" type="checkbox" />
+                Wanna be admin
+              </label>
+            </div>
             <button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Logging in..." : "Login"}
+              {isSubmitting ? "Registering..." : "Register"}
             </button>
           </Form>
         )}

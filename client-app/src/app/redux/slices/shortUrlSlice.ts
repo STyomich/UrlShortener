@@ -5,15 +5,11 @@ import agent from "../../api/agent";
 interface ShortUrlState {
   list: ShortUrl[];
   selectedShortUrl: ShortUrl | null;
-  status: "idle" | "loading" | "succeeded" | "failed";
-  error: string | null;
 }
 
 const initialState: ShortUrlState = {
   list: [],
   selectedShortUrl: null,
-  status: "idle",
-  error: null,
 };
 
 export const fetchShortUrls = createAsyncThunk(
@@ -38,28 +34,18 @@ export const createShortUrl = createAsyncThunk(
 
 export const fetchShortUrlDetails = createAsyncThunk(
   "shortUrls/fetchShortUrlDetails",
-  async (id: string, { rejectWithValue }) => {
-    try {
-      return await agent.ShortUrls.details(id);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      return rejectWithValue(
-        error.message || "Failed to fetch short URL details"
-      );
-    }
+  async (id: string, { dispatch }) => {
+    const shortUrl = await agent.ShortUrls.details(id);
+    dispatch(shortUrlSlice.actions.selectShortUrl(shortUrl));
+    return shortUrl;
   }
 );
 
 export const deleteShortUrl = createAsyncThunk(
   "shortUrls/deleteShortUrl",
-  async (id: string, { rejectWithValue }) => {
-    try {
-      await agent.ShortUrls.delete(id);
-      return id; // Return the deleted ID to update the state.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      return rejectWithValue(error.message || "Failed to delete short URL");
-    }
+  async (id: string) => {
+    await agent.ShortUrls.delete(id);
+    return id;
   }
 );
 
@@ -70,74 +56,45 @@ const shortUrlSlice = createSlice({
     clearSelectedShortUrl(state) {
       state.selectedShortUrl = null;
     },
+    selectShortUrl(state, action) {
+      state.selectedShortUrl = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
       // Fetch List
-      .addCase(fetchShortUrls.pending, (state) => {
-        state.status = "loading";
-      })
       .addCase(
         fetchShortUrls.fulfilled,
         (state, action: PayloadAction<ShortUrl[]>) => {
-          state.status = "succeeded";
           state.list = action.payload;
         }
       )
-      .addCase(fetchShortUrls.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload as string;
-      })
       // Create ShortUrl
-      .addCase(createShortUrl.pending, (state) => {
-        state.status = "loading";
-      })
       .addCase(
         createShortUrl.fulfilled,
         (state, action: PayloadAction<ShortUrl>) => {
-          state.status = "succeeded";
           state.list.push(action.payload);
         }
       )
-      .addCase(createShortUrl.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload as string;
-      })
       // Fetch Details
-      .addCase(fetchShortUrlDetails.pending, (state) => {
-        state.status = "loading";
-      })
       .addCase(
         fetchShortUrlDetails.fulfilled,
-        (state, action: PayloadAction<ShortUrl>) => {
-          state.status = "succeeded";
-          state.selectedShortUrl = action.payload;
+        (state, action: PayloadAction<ShortUrl | null>) => {
+          state.selectedShortUrl = action.payload || null;
         }
       )
-      .addCase(fetchShortUrlDetails.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload as string;
-      })
       // Delete ShortUrl
-      .addCase(deleteShortUrl.pending, (state) => {
-        state.status = "loading";
-      })
       .addCase(
         deleteShortUrl.fulfilled,
         (state, action: PayloadAction<string>) => {
-          state.status = "succeeded";
           state.list = state.list.filter(
             (shortUrl) => shortUrl.id !== action.payload
           );
         }
-      )
-      .addCase(deleteShortUrl.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload as string;
-      });
+      );
   },
 });
 
-export const { clearSelectedShortUrl } = shortUrlSlice.actions;
+export const { clearSelectedShortUrl, selectShortUrl } = shortUrlSlice.actions;
 
 export default shortUrlSlice.reducer;

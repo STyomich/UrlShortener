@@ -20,15 +20,28 @@ namespace API.Controllers
         {
             return await _mediator.Send(new List.Query());
         }
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateShortUrl(OriginalUrlDto originalUrl)
         {
             return Ok(await Mediator.Send(new Create.Command { OriginalUrl = originalUrl }));
         }
-        [HttpGet("{id}")]
+        [Authorize]
+        [HttpGet("{id}/asd")]
         public async Task<IActionResult> GetShortUrlDetails(Guid id)
         {
             return HandleResult(await Mediator.Send(new Details.Query { Id = id }));
+        }
+        [Route("")]
+        [AllowAnonymous]
+        [HttpGet("/{urlKey}")]
+        public async Task<IActionResult> ShortUrlRedirect(string urlKey)
+        {
+            string link = await Mediator.Send(new ReturnOriginalUrlByKey.Query { UrlKey = urlKey });
+            if (link != null)
+                return Redirect($"{link}");
+            else
+                return NotFound();
         }
     }
 }

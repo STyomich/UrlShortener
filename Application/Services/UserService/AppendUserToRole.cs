@@ -10,7 +10,7 @@ namespace Application.Services.UserService
     {
         public class Command : IRequest<Result<Unit>>
         {
-            public string? UserGroup { get; set; }
+            public bool IsAdmin { get; set; }
             public ApplicationUser? User { get; set; }
         }
         public class Handler : IRequestHandler<Command, Result<Unit>>
@@ -26,7 +26,7 @@ namespace Application.Services.UserService
             }
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
-                if (request.UserGroup == UserGroupsEnum.Admin.ToString())
+                if (request.IsAdmin)
                 {
                     if (await _roleManager.FindByNameAsync(UserGroupsEnum.Admin.ToString()) is null)
                     {
@@ -37,7 +37,7 @@ namespace Application.Services.UserService
                     await _userManager.AddToRoleAsync(request.User, UserGroupsEnum.Admin.ToString());
                     return Result<Unit>.Success(Unit.Value);
                 }
-                if (request.UserGroup == UserGroupsEnum.User.ToString())
+                else
                 {
                     if (await _roleManager.FindByNameAsync(UserGroupsEnum.User.ToString()) is null)
                     {

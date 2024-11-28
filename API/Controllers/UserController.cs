@@ -33,11 +33,16 @@ namespace API.Controllers
             if (!result) return Unauthorized();
             if (result)
             {
+                string userGroup = "User";
+                if (await _userManager.IsInRoleAsync(user, "Admin"))
+                    userGroup = "Admin";
                 return new UserDto
                 {
+                    Id = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
-                    Token = _tokenService.CreateToken(user)
+                    Token = _tokenService.CreateToken(user),
+                    UserGroup = userGroup
                 };
             }
             return Unauthorized();
@@ -66,12 +71,17 @@ namespace API.Controllers
 
             if (result.Succeeded)
             {
-                await _mediator.Send(new AppendUserToRole.Command { UserGroup = registerDto.UserGroup, User = user });
+                await _mediator.Send(new AppendUserToRole.Command { IsAdmin = registerDto.IsAdmin, User = user });
+                string userGroup = "User";
+                if (await _userManager.IsInRoleAsync(user, "Admin"))
+                    userGroup = "Admin";
                 return new UserDto
                 {
+                    Id = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
-                    Token = _tokenService.CreateToken(user)
+                    Token = _tokenService.CreateToken(user),
+                    UserGroup = userGroup
                 };
             }
             return BadRequest(result.Errors);
@@ -81,12 +91,19 @@ namespace API.Controllers
         {
             var user = await _userManager.Users.SingleOrDefaultAsync(x => x.Email == User.FindFirstValue(ClaimTypes.Email));
             if (user != null)
+            {
+                string userGroup = "User";
+                if (await _userManager.IsInRoleAsync(user, "Admin"))
+                    userGroup = "Admin";
                 return new UserDto
                 {
+                    Id = user.Id,
                     UserName = user.UserName,
                     Email = user.Email,
-                    Token = _tokenService.CreateToken(user)
+                    Token = _tokenService.CreateToken(user),
+                    UserGroup = userGroup
                 };
+            }
             else
                 return null;
         }

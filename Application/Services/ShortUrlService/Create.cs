@@ -31,8 +31,6 @@ namespace Application.Services.ShortUrlService
                     return Result<Unit>.Failure("This original link is already existed in system.");
                 else
                 {
-                    string asda = _userAccessor.GetUserIdentifier();
-                    string asdaasd = _userAccessor.GetUserName();
                     string key = RandomStringGenerator.GenerateRandomString(16);
                     var newShortUrl = new ShortUrl
                     {
