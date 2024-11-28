@@ -35,7 +35,7 @@ namespace API.Controllers
             {
                 return new UserDto
                 {
-                    Username = user.UserName,
+                    UserName = user.UserName,
                     Email = user.Email,
                     Token = _tokenService.CreateToken(user)
                 };
@@ -69,7 +69,7 @@ namespace API.Controllers
                 await _mediator.Send(new AppendUserToRole.Command { UserGroup = registerDto.UserGroup, User = user });
                 return new UserDto
                 {
-                    Username = user.UserName,
+                    UserName = user.UserName,
                     Email = user.Email,
                     Token = _tokenService.CreateToken(user)
                 };
@@ -83,7 +83,7 @@ namespace API.Controllers
             if (user != null)
                 return new UserDto
                 {
-                    Username = user.UserName,
+                    UserName = user.UserName,
                     Email = user.Email,
                     Token = _tokenService.CreateToken(user)
                 };

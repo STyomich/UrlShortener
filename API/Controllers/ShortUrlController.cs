@@ -2,6 +2,7 @@ using Application.Services.ShortUrlService;
 using Core.Domain.Entities;
 using Core.DTOs.Entities;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -13,6 +14,7 @@ namespace API.Controllers
         {
             _mediator = mediator;
         }
+        [AllowAnonymous]
         [HttpGet] //api/shorturl
         public async Task<ActionResult<List<ShortUrlDto>>> GetAllShortUrls()
         {
